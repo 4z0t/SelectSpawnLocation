@@ -104,13 +104,11 @@ function CreateSpawnAreas(teams)
     local c1
     local c2
     if AllyState then
-
         c1 = "ff00ff00"
         c2 = "ffff0000"
     else
         c1 = "ffff0000"
         c2 = "ff00ff00"
-
     end
 
     local t1, t2
@@ -276,11 +274,6 @@ function InitializeArmies()
     local tblArmy = ListArmies()
 
     local civOpt = ScenarioInfo.Options.CivilianAlliance
-
-    local bCreateInitial = ShouldCreateInitialArmyUnits()
-    local msizeX, msizeY = GetMapSize()
-
-    -- LOG(repr(ScenarioInfo))
 
     for iArmy, strArmy in pairs(tblArmy) do
         local tblData = Scenario.Armies[strArmy]
