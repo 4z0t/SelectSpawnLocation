@@ -1,8 +1,6 @@
 local UIUtil = import('/lua/ui/uiutil.lua')
 local LayoutHelpers = import('/lua/maui/layouthelpers.lua')
-local worldView = import('/lua/ui/game/worldview.lua').viewLeft
 local Bitmap = import('/lua/maui/bitmap.lua').Bitmap
-local Prefs = import('/lua/user/prefs.lua')
 local Group = import('/lua/maui/group.lua').Group
 
 local LayoutFor = import('/lua/maui/layouthelpers.lua').LayoutFor
@@ -196,9 +194,13 @@ function Delete()
 
     ---@type WorldView
     local worldView = import("/lua/ui/game/worldview.lua").viewLeft
-    if not worldView.spawnOverlay then
+    if worldView.spawnOverlay then
         worldView.spawnOverlay:Destroy()
+        worldView.spawnOverlay = nil
     end
+    Markers = nil
+    Timer = nil
+    Credits = nil
 end
 
 function GetArmy(name)
