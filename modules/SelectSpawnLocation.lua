@@ -102,6 +102,7 @@ function CreateSpawnAreas(teams)
 
     local faTeam = GetFocusArmyTeam()
 
+
     local c1
     local c2
     if faTeam == t1 then
@@ -113,9 +114,6 @@ function CreateSpawnAreas(teams)
     end
 
     local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
-    LOG(terrainSymmetry)
-    reprsl(ScenarioInfo.MapData)
-
     local x1, y1, x2, y2 = unpack(ScenarioInfo.MapData.PlayableRect)
     local msizeX, msizeY = x2 - x1, y2 - y1
     local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
@@ -231,17 +229,15 @@ function SplitPlayersByTeams()
         teams[army.Team] = teams[army.Team] or {}
         table.insert(teams[army.Team], army.ArmyIndex)
     end
-    reprsl(armyToTeam)
-    reprsl(teams)
     return armyToTeam, teams
 end
 
 function PreparationPhaze(tblGroups)
     LOG("render started")
     local armyToTeam, teams = SplitPlayersByTeams()
+    ScenarioInfo.ArmyToTeam = armyToTeam
     local areas = CreateSpawnAreas(teams)
     ScenarioInfo.SpawnAreas = areas
-    ScenarioInfo.ArmyToTeam = armyToTeam
     ScenarioInfo.SpawnLocations = DefaultSpawnLocations(areas, armyToTeam)
     local mainThread = ForkThread(MainThread)
     WaitTicks(time)
@@ -331,8 +327,6 @@ function InitializeArmies()
 
 
     end
-    reprsl(ScenarioInfo.ArmySetup)
-    LOG(GetFocusArmy())
     ForkThread(PreparationPhaze, tblGroups)
     return tblGroups
 end
