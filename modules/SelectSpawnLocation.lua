@@ -332,6 +332,7 @@ function InitializeArmies()
 
     end
     reprsl(ScenarioInfo.ArmySetup)
+    LOG(GetFocusArmy())
     ForkThread(PreparationPhaze, tblGroups)
     return tblGroups
 end
