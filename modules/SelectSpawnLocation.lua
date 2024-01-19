@@ -84,31 +84,11 @@ function SelectSpawnLocation(data)
 end
 
 function CreateSpawnAreas(teams)
-    local AllyState = false
-
-    local Atype = ScenarioInfo.Options.AutoTeams
-
-
-    if not Atype then error("invalid auto teams type") end
     if table.getsize(teams) ~= 2 then error("invalid team count") end
 
-
-    LOG(GetFocusArmy())
-    for iArmy, strArmy in pairs(ListArmies()) do
-        if (iArmy == GetFocusArmy()) or IsAlly(iArmy, GetFocusArmy()) then
-            AllyState = true
-            break
-        end
-    end
-
-    local c1
-    local c2
-    if AllyState then
-        c1 = "ff00ff00"
-        c2 = "ffff0000"
-    else
-        c1 = "ffff0000"
-        c2 = "ff00ff00"
+    local function GetFocusArmyTeam()
+        local fa = GetFocusArmy()
+        return ScenarioInfo.ArmyToTeam[fa]
     end
 
     local t1, t2
@@ -119,6 +99,19 @@ function CreateSpawnAreas(teams)
             t2 = team
         end
     end
+
+    local faTeam = GetFocusArmyTeam()
+
+    local c1
+    local c2
+    if faTeam == t1 then
+        c1 = "ff00ff00"
+        c2 = "ffff0000"
+    else
+        c1 = "ffff0000"
+        c2 = "ff00ff00"
+    end
+
     local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
     LOG(terrainSymmetry)
     reprsl(ScenarioInfo.MapData)
