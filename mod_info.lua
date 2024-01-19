@@ -1,0 +1,16 @@
+name = "Dynamic Spawns"
+uid = "6A92D13E-BA10-11E5-9A44-4128BB8T7F8v"
+version = 6
+copyright = ""
+description = "choose your position before spawn"
+author = "4z0t"
+icon = ""
+selectable = true
+enabled = true
+exclusive = false
+ui_only = false
+requires = { }
+requiresNames = { }
+conflicts = { }
+before = { }
+after = { }
