@@ -87,7 +87,7 @@ function CreateSpawnAreas(teams)
     local AllyState = false
 
     local Atype = ScenarioInfo.Options.AutoTeams
-    local msizeX, msizeY = GetMapSize()
+
 
     if not Atype then error("invalid auto teams type") end
     if table.getsize(teams) ~= 2 then error("invalid team count") end
@@ -97,8 +97,8 @@ function CreateSpawnAreas(teams)
     for iArmy, strArmy in pairs(ListArmies()) do
         if (iArmy == GetFocusArmy()) or IsAlly(iArmy, GetFocusArmy()) then
             AllyState = true
+            break
         end
-        break
     end
 
     local c1
@@ -121,24 +121,39 @@ function CreateSpawnAreas(teams)
             t2 = team
         end
     end
+    local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
+    LOG(terrainSymmetry)
+    reprsl(ScenarioInfo.MapData)
 
-    LOG(Atype)
-    if Atype == 'lvsr' then
+    local x1, y1, x2, y2 = unpack(ScenarioInfo.MapData.PlayableRect)
+    local msizeX, msizeY = x2 - x1, y2 - y1
+    local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
+    local msizeX13, msizeY13 = msizeX / 3, msizeY / 3
+
+    if terrainSymmetry == 'lvsr' then
         return {
-            [t1] = SpawnArea(c1, 0, 0, msizeX / 3, msizeY),
-            [t2] = SpawnArea(c2, 2 * msizeX / 3, 0, msizeX, msizeY),
+            [t1] = SpawnArea(c1, x1, y1, x1 + msizeX13, y2),
+            [t2] = SpawnArea(c2, x2 - msizeX13, y1, x2, y2),
         }
-    elseif Atype == 'tvsb' then
+    elseif terrainSymmetry == 'tvsb' then
         return {
-            [t1] = SpawnArea(c1, 0, 0, msizeX, msizeY / 3),
-            [t2] = SpawnArea(c2, 0, 2 * msizeY / 3, msizeX, msizeY),
+            [t1] = SpawnArea(c1, x1, y1, x2, y1 + msizeY13),
+            [t2] = SpawnArea(c2, x1, y2 - msizeY13, x2, y2),
         }
-    elseif Atype == 'pvsi' then
+    elseif terrainSymmetry == 'tlvsbr' then
         return {
-            [t1] = SpawnArea(c1, 3 * msizeX / 5, 0, msizeX, 2 * msizeY / 5),
-            [t2] = SpawnArea(c2, 0, 3 * msizeY / 5, 2 * msizeX / 5, msizeY),
+            [t1] = SpawnArea(c1, x1, y1, x1 + msizeX25, y1 + msizeY25),
+            [t2] = SpawnArea(c2, x2 - msizeX25, y2 - msizeY25, x2, y2),
         }
+    elseif terrainSymmetry == 'trvsbl' then
+        return {
+            [t1] = SpawnArea(c1, x2 - msizeX25, y1, x2, y1 + msizeY25),
+            [t2] = SpawnArea(c2, x1, y2 - msizeY25, x2 + msizeX25, y2),
+        }
+    elseif terrainSymmetry == 'none' then
+        error("Unsupported")
     end
+
     error("invalid type")
 
 end
@@ -250,6 +265,7 @@ function PreparationPhaze(tblGroups)
     ScenarioInfo.SpawnAreas     = nil
     ScenarioInfo.ArmyToTeam     = nil
     ScenarioInfo.SpawnLocations = nil
+    ResumeThread(ScenarioInfo.GameOverThread)
 end
 
 function InitializeArmies()
