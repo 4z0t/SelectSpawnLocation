@@ -246,13 +246,11 @@ function PreparationPhaze(tblGroups)
     LOG("COMS SPAWNED")
     KillThread(mainThread)
 
-    --ResumeThread(ScenarioInfo.GameOverThread)
     Sync.DeleteMarkers          = true
     ScenarioInfo.IsSpawnPhaze   = false
     ScenarioInfo.SpawnAreas     = nil
     ScenarioInfo.ArmyToTeam     = nil
     ScenarioInfo.SpawnLocations = nil
-    ResumeThread(ScenarioInfo.GameOverThread)
 end
 
 function InitializeArmies()

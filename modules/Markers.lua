@@ -68,7 +68,7 @@ function CreateTimer()
     Timer:SetNeedsFrameUpdate(true)
     LayoutHelpers.AtCenterIn(Timer, GetFrame(0), -400)
     Timer.OnFrame = function(self, delta)
-        self:SetText('Choose your destiny: ' .. math.ceil((30 - GetGameTimeSeconds())))
+        self:SetText('Choose your destiny: ' .. math.ceil((30 - GameTick() / 10)))
     end
 
 end
@@ -96,7 +96,7 @@ function createPositionMarker(armyData, postable)
 
     -- Army color line below the nickname
     posMarker.separator = Bitmap(posMarker)
-    posMarker.separator:SetTexture('/mods/Reveal positions/textures/clear.dds')
+    posMarker.separator:SetTexture('/mods/SSL/textures/clear.dds')
     posMarker.separator.Left:Set(posMarker.nickname.Left)
     posMarker.separator.Right:Set(posMarker.nickname.Right)
 
