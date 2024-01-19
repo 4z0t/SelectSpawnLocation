@@ -3,6 +3,9 @@ local LayoutHelpers = import('/lua/maui/layouthelpers.lua')
 local worldView = import('/lua/ui/game/worldview.lua').viewLeft
 local Bitmap = import('/lua/maui/bitmap.lua').Bitmap
 local Prefs = import('/lua/user/prefs.lua')
+local Group = import('/lua/maui/group.lua').Group
+
+local LayoutFor = import('/lua/maui/layouthelpers.lua').LayoutFor
 
 local Markers = {}
 local Timer = nil
@@ -12,14 +15,37 @@ function CreateCredits()
     Credits:SetColor('ffffffff')
     Credits:DisableHitTest()
     --Credits:SetNeedsFrameUpdate(true)
-    LayoutHelpers.AtLeftTopIn(Credits, GetFrame(0),100,500 )
+    LayoutHelpers.AtLeftTopIn(Credits, GetFrame(0), 100, 500)
     Credits.text = UIUtil.CreateText(Credits, 'Markers by Eternal-', 16, "Arial", true)
     Credits.text:SetColor('ffffffff')
     Credits.text:DisableHitTest()
-    LayoutHelpers.Below(Credits.text,Credits,4)
+    LayoutHelpers.Below(Credits.text, Credits, 4)
 end
 
 function UpdateMarkers(SyncMarkers)
+    ---@type WorldView
+    local worldView = import("/lua/ui/game/worldview.lua").viewLeft
+    if not worldView.spawnOverlay then
+        worldView.spawnOverlay = Group(worldView)
+        LayoutFor(worldView.spawnOverlay)
+            :Fill(worldView)
+            :EnableHitTest(true)
+        worldView.spawnOverlay.HandleEvent = function(self, event)
+            if event.Type == "ButtonPress" and event.Modifiers.Right then
+                local pos = GetMouseWorldPos()
+                SimCallback {
+                    Func = "SelectSpawnLocation",
+                    Args = {
+                        Army = GetFocusArmy(),
+                        Position = Vector(pos[1], pos[2], pos[3])
+                    }
+                }
+            end
+            return false
+        end
+
+    end
+
     if not Timer then
         CreateTimer()
     end
@@ -32,7 +58,7 @@ function UpdateMarkers(SyncMarkers)
             Markers[strArmy] = createPositionMarker(GetArmy(strArmy), pos)
             -- Markers[strArmy] = CreateMarker(strArmy, pos)
         else
-            Markers[strArmy].pos = {pos[1], pos[2], pos[3]}
+            Markers[strArmy].pos = { pos[1], pos[2], pos[3] }
         end
     end
 end
@@ -44,13 +70,13 @@ function CreateTimer()
     Timer:SetNeedsFrameUpdate(true)
     LayoutHelpers.AtCenterIn(Timer, GetFrame(0), -400)
     Timer.OnFrame = function(self, delta)
-        Timer:SetText('Choose your destiny: ' .. math.ceil((30 - GetGameTimeSeconds())))
+        self:SetText('Choose your destiny: ' .. math.ceil((30 - GetGameTimeSeconds())))
     end
 
 end
 
 function createPositionMarker(armyData, postable)
-    local pos = {postable[1], postable[2], postable[3] - 10}
+    local pos = { postable[1], postable[2], postable[3] - 10 }
 
     -- Bitmap of marker
     local posMarker = Bitmap(GetFrame(0))
@@ -102,12 +128,12 @@ function createPositionMarker(armyData, postable)
     posMarker.color:SetSolidColor(armyData.color)
     posMarker.color:DisableHitTest()
 
-    -- Ratings	
+    -- Ratings
     -- if isAlly == true then
     -- 	posMarker.rating = UIUtil.CreateText(posMarker, "", 0)
     -- else
     -- 	posMarker.rating = UIUtil.CreateText(posMarker, rating, 12)
-    -- end	
+    -- end
     -- LayoutHelpers.Below(posMarker.rating, posMarker.separator, 3)
     -- posMarker.rating.Left:Set(posMarker.nickname.Left)
     -- posMarker.rating.Right:Set(posMarker.nickname.Right)
@@ -148,7 +174,7 @@ function CreateMarker(strArmy, pos)
     Marker:SetColor('ffffffff')
     Marker:DisableHitTest()
     Marker:SetNeedsFrameUpdate(true)
-    Marker.pos = {pos[1], pos[2], pos[3]}
+    Marker.pos = { pos[1], pos[2], pos[3] }
     Marker.OnFrame = function(self, delta)
 
         -- if markerpos then
@@ -167,6 +193,12 @@ function Delete()
     end
     Timer:Destroy()
     Credits:Destroy()
+
+    ---@type WorldView
+    local worldView = import("/lua/ui/game/worldview.lua").viewLeft
+    if not worldView.spawnOverlay then
+        worldView.spawnOverlay:Destroy()
+    end
 end
 
 function GetArmy(name)
@@ -185,4 +217,3 @@ function ArmyName(name)
     end
     return "ERROR"
 end
-

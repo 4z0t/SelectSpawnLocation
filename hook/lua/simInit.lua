@@ -1,11 +1,13 @@
+---[[
 
+ 
 -- BeginSession will be called by the engine after the armies are created (but without
 -- any units yet) and we're ready to start the game. It's responsible for setting up
 -- the initial units and any other gameplay state we need.
 function BeginSession()
     LOG('BeginSession...')
     SPEW('Active mods in sim: ', repr(__active_mods))
-    ScenarioUtils.CreateResources()
+    import("/lua/sim/scenarioutilities.lua").CreateResources()
     GameOverListeners = {}
     ScenarioInfo.GameOverThread = ForkThread(function()
         --WaitTicks(300)
@@ -85,3 +87,4 @@ function BeginSession()
 end
 
 
+--]]

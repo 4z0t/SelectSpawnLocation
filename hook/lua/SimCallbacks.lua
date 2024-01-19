@@ -1,0 +1,1 @@
+Callbacks.SelectSpawnLocation = import("/mods/SSL/modules/SelectSpawnLocation.lua").SelectSpawnLocation

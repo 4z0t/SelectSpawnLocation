@@ -1,6 +1,6 @@
-name = "Dynamic Spawns"
-uid = "6A92D13E-BA10-11E5-9A44-4128BB8T7F8v"
-version = 6
+name = "Select spawn locations"
+uid = "ssl-v01"
+version = 1
 copyright = ""
 description = "choose your position before spawn"
 author = "4z0t"
