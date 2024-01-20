@@ -126,7 +126,7 @@ function CreateSpawnAreas(teams)
     local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
     local msizeX13, msizeY13 = msizeX / 3, msizeY / 3
 
-    if terrainSymmetry == 'lvsr' then
+    if terrainSymmetry == 'rvsl' then
         return {
             [t1] = SpawnArea(c1, x1, y1, x1 + msizeX13, y2),
             [t2] = SpawnArea(c2, x2 - msizeX13, y1, x2, y2),
