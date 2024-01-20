@@ -144,7 +144,7 @@ function CreateSpawnAreas(teams)
     elseif terrainSymmetry == 'trvsbl' then
         return {
             [t1] = SpawnArea(c1, x2 - msizeX25, y1, x2, y1 + msizeY25),
-            [t2] = SpawnArea(c2, x1, y2 - msizeY25, x2 + msizeX25, y2),
+            [t2] = SpawnArea(c2, x1, y2 - msizeY25, x1 + msizeX25, y2),
         }
     elseif terrainSymmetry == 'none' then
         error("Unsupported")
