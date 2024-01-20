@@ -168,7 +168,7 @@ function RenderMarkers()
         if armyIsCiv then continue end
         local markerpos = ScenarioInfo.SpawnLocations[iArmy]
 
-        if IsAlly(iArmy, focusArmy) or (iArmy == focusArmy) then
+        if focusArmy == -1 or IsAlly(iArmy, focusArmy) or (iArmy == focusArmy) then
             Sync.Markers[strArmy] = markerpos
         end
 
