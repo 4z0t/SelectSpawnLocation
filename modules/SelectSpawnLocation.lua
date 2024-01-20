@@ -114,7 +114,14 @@ function CreateSpawnAreas(teams)
     end
 
     local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
-    local x1, y1, x2, y2 = unpack(ScenarioInfo.MapData.PlayableRect)
+    local function GetMapRect()
+        if ScenarioInfo.MapData.PlayableRect then
+            return unpack(ScenarioInfo.MapData.PlayableRect)
+        end
+        return 0, 0, GetMapSize()
+    end
+
+    local x1, y1, x2, y2 = GetMapRect()
     local msizeX, msizeY = x2 - x1, y2 - y1
     local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
     local msizeX13, msizeY13 = msizeX / 3, msizeY / 3
