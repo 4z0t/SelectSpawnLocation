@@ -83,9 +83,7 @@ function SelectSpawnLocation(data)
     ScenarioInfo.SpawnLocations[armyId] = data.Position
 end
 
-function CreateSpawnAreas(teams)
-    if table.getsize(teams) ~= 2 then error("invalid team count") end
-
+function GetColorsAndTeams(teams)
     local function GetFocusArmyTeam()
         local fa = GetFocusArmy()
         return ScenarioInfo.ArmyToTeam[fa]
@@ -102,7 +100,6 @@ function CreateSpawnAreas(teams)
 
     local faTeam = GetFocusArmyTeam()
 
-
     local c1
     local c2
     if faTeam == t1 then
@@ -112,46 +109,70 @@ function CreateSpawnAreas(teams)
         c1 = "ffff0000"
         c2 = "ff00ff00"
     end
+    return t1, t2, c1, c2
+end
 
-    local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
-    local function GetMapRect()
-        if ScenarioInfo.MapData.PlayableRect then
-            return unpack(ScenarioInfo.MapData.PlayableRect)
-        end
-        return 0, 0, GetMapSize()
+local function GetMapRect()
+    if ScenarioInfo.MapData.PlayableRect then
+        return unpack(ScenarioInfo.MapData.PlayableRect)
     end
+    return 0, 0, GetMapSize()
+end
 
-    local x1, y1, x2, y2 = GetMapRect()
-    local msizeX, msizeY = x2 - x1, y2 - y1
-    local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
-    local msizeX13, msizeY13 = msizeX / 3, msizeY / 3
-
-    if terrainSymmetry == 'rvsl' then
+local symmetryToAreaShape = {
+    ["rvsl"] = function(t1, t2, c1, c2)
+        local x1, y1, x2, y2 = GetMapRect()
+        local msizeX, msizeY = x2 - x1, y2 - y1
+        local msizeX13, msizeY13 = msizeX / 3, msizeY / 3
         return {
             [t1] = SpawnArea(c1, x1, y1, x1 + msizeX13, y2),
             [t2] = SpawnArea(c2, x2 - msizeX13, y1, x2, y2),
         }
-    elseif terrainSymmetry == 'tvsb' then
+    end,
+    ["tvsb"] = function(t1, t2, c1, c2)
+        local x1, y1, x2, y2 = GetMapRect()
+        local msizeX, msizeY = x2 - x1, y2 - y1
+        local msizeX13, msizeY13 = msizeX / 3, msizeY / 3
         return {
             [t1] = SpawnArea(c1, x1, y1, x2, y1 + msizeY13),
             [t2] = SpawnArea(c2, x1, y2 - msizeY13, x2, y2),
         }
-    elseif terrainSymmetry == 'tlvsbr' then
+    end,
+    ["tlvsbr"] = function(t1, t2, c1, c2)
+        local x1, y1, x2, y2 = GetMapRect()
+        local msizeX, msizeY = x2 - x1, y2 - y1
+        local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
         return {
             [t1] = SpawnArea(c1, x1, y1, x1 + msizeX25, y1 + msizeY25),
             [t2] = SpawnArea(c2, x2 - msizeX25, y2 - msizeY25, x2, y2),
         }
-    elseif terrainSymmetry == 'trvsbl' then
+    end,
+    ["trvsbl"] = function(t1, t2, c1, c2)
+        local x1, y1, x2, y2 = GetMapRect()
+        local msizeX, msizeY = x2 - x1, y2 - y1
+        local msizeX25, msizeY25 = 2 * msizeX / 5, 2 * msizeY / 5
         return {
             [t1] = SpawnArea(c1, x2 - msizeX25, y1, x2, y1 + msizeY25),
             [t2] = SpawnArea(c2, x1, y2 - msizeY25, x1 + msizeX25, y2),
         }
-    elseif terrainSymmetry == 'none' then
+    end,
+    ["none"] = function(t1, t2, c1, c2)
         error("Unsupported")
+    end,
+}
+
+function CreateSpawnAreas(teams)
+    if table.getsize(teams) ~= 2 then error("invalid team count") end
+
+    local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
+
+    local t1, t2, c1, c2 = GetColorsAndTeams(teams)
+
+    local f = symmetryToAreaShape[terrainSymmetry]
+    if f then
+        return f(t1, t2, c1, c2)
     end
-
     error("invalid type")
-
 end
 
 local time = 300
