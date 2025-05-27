@@ -261,6 +261,7 @@ function SplitPlayersByTeams()
 end
 
 function PreparationPhaze(tblGroups)
+    ScenarioInfo.IsSpawnPhaze = true
     LOG("render started")
     local armyToTeam, teams = SplitPlayersByTeams()
     ScenarioInfo.ArmyToTeam = armyToTeam
@@ -282,8 +283,6 @@ function PreparationPhaze(tblGroups)
 end
 
 function InitializeArmies()
-    ScenarioInfo.IsSpawnPhaze = true
-
     LOG("DYNAMICSPAWN")
     local tblGroups = {}
     local tblArmy = ListArmies()
