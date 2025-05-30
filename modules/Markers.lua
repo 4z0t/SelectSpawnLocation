@@ -52,7 +52,7 @@ function UpdateMarkers(SyncMarkers)
     end
     -- LOG(repr(GetArmiesTable()))
     for strArmy, pos in SyncMarkers do
-        if not Markers[strArmy] then
+        if IsDestroyed(Markers[strArmy]) then
             Markers[strArmy] = createPositionMarker(GetArmy(strArmy), pos)
             -- Markers[strArmy] = CreateMarker(strArmy, pos)
         else
@@ -74,11 +74,13 @@ function CreateTimer()
 end
 
 function createPositionMarker(armyData, postable)
+    local worldView = import('/lua/ui/game/worldview.lua').viewLeft
+
     local pos = { postable[1], postable[2], postable[3] - 10 }
 
     -- Bitmap of marker
-    local posMarker = Bitmap(GetFrame(0))
-    LayoutHelpers.AtCenterIn(posMarker, GetFrame(0))
+    local posMarker = Bitmap(worldView)
+    LayoutHelpers.AtCenterIn(posMarker, worldView)
     LayoutHelpers.SetDimensions(posMarker, 150, 25)
     posMarker.pos = pos
     posMarker.Depth:Set(10)
@@ -126,40 +128,22 @@ function createPositionMarker(armyData, postable)
     posMarker.color:SetSolidColor(armyData.color)
     posMarker.color:DisableHitTest()
 
-    -- Ratings
-    -- if isAlly == true then
-    -- 	posMarker.rating = UIUtil.CreateText(posMarker, "", 0)
-    -- else
-    -- 	posMarker.rating = UIUtil.CreateText(posMarker, rating, 12)
-    -- end
-    -- LayoutHelpers.Below(posMarker.rating, posMarker.separator, 3)
-    -- posMarker.rating.Left:Set(posMarker.nickname.Left)
-    -- posMarker.rating.Right:Set(posMarker.nickname.Right)
-    -- posMarker.rating:SetColor('white')
-    -- posMarker.rating:DisableHitTest()
+    local LazyVar = import('/lua/lazyvar.lua').Create
+    posMarker.PosX = LazyVar()
+    posMarker.PosY = LazyVar()
 
-    -- Invisible button that fill bitmap of marker
-    -- local posMarkerButton = Button(posMarker, '/mods/DynamicSpawns/textures/clear.dds',
-    --                             '/mods/DynamicSpawns/textures/clear.dds', '/mods/DynamicSpawns/textures/clear.dds',
-    --                             '/mods/DynamicSpawns/textures/clear.dds')
-    -- LayoutHelpers.FillParent(posMarkerButton, posMarker.nickname)
-    -- posMarkerButton.pos = pos
-    -- posMarkerButton.Depth:Set(9)
+    posMarker.Left:Set(function()
+        return worldView.Left() + posMarker.PosX() - posMarker.Width() / 2
+    end)
+    posMarker.Top:Set(function()
+        return worldView.Top() + posMarker.PosY() - posMarker.Height() / 2
+    end)
 
-    -- posMarkerButton:EnableHitTest(true)
-    -- posMarkerButton.OnClick = function(self, event)
-    --     posMarker:Destroy()
-    --     posMarker = nil
-    --     posMarkerButton:Destroy()
-    --     posMarkerButton = nil
-    -- end
 
     posMarker.OnFrame = function(self, delta)
-        local worldView = import('/lua/ui/game/worldview.lua').viewLeft
         local pos = worldView:Project(self.pos)
-
-        LayoutHelpers.AtLeftTopIn(self, worldView, pos.x - self.Width() / 2, pos.y - self.Height() / 2 + 1)
-
+        self.PosX:Set(pos.x)
+        self.PosY:Set(pos.y)
     end
 
     return posMarker
