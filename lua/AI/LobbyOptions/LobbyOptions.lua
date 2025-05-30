@@ -10,11 +10,11 @@ do
             help = "Spawn areas type",
             key = "SpawnAreaType",
             values = {
-                {
-                    text = "Based on map symmetry",
-                    help = "Works only with Map generator",
-                    key = 'none',
-                },
+                -- {
+                --     text = "Based on map symmetry",
+                --     help = "Works only with Map generator",
+                --     key = 'none',
+                -- },
                 {
                     text = "Top vs Bottom",
                     help = "2 areas on top and bottom of the map",
@@ -34,6 +34,11 @@ do
                     text = "Top Right vs Bottom Left",
                     help = "",
                     key = 'trvsbl',
+                },
+                {
+                    text = "Whole map",
+                    help = "Let the chaos begin!",
+                    key = 'whole',
                 },
             }
         })

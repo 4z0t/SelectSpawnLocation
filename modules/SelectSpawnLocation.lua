@@ -156,8 +156,12 @@ local symmetryToAreaShape = {
             [t2] = SpawnArea(c2, x1, y2 - msizeY25, x1 + msizeX25, y2),
         }
     end,
-    ["none"] = function(t1, t2, c1, c2)
-        error("Unsupported")
+    ["whole"] = function(t1, t2, c1, c2)
+        local x1, y1, x2, y2 = GetMapRect()
+        return {
+            [t1] = SpawnArea(c1, x1, y1, x2, y2),
+            [t2] = SpawnArea(c2, x1, y1, x2, y2),
+        }
     end,
 }
 
@@ -172,7 +176,8 @@ function CreateSpawnAreas(teams)
     if f then
         return f(t1, t2, c1, c2)
     end
-    error("invalid type")
+    -- Default to top vs bottom
+    return symmetryToAreaShape["tvsb"](t1, t2, c1, c2)
 end
 
 local time = 300
