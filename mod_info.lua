@@ -1,6 +1,6 @@
 name = "Select spawn locations"
-uid = "select-spawn-locations-v08"
-version = 8
+uid = "select-spawn-locations-v09"
+version = 9
 copyright = ""
 description = [[Mod that makes you select your ACU spawn location before game starts.
 Best to play on Generated maps with lots of mexes.
