@@ -29,7 +29,7 @@ function UpdateMarkers(SyncMarkers)
             :Fill(worldView)
             :EnableHitTest(true)
         worldView.spawnOverlay.HandleEvent = function(self, event)
-            if event.Type == "ButtonPress" and event.Modifiers.Right then
+            if event.Type == "ButtonPress" and event.Modifiers.Left then
                 local pos = GetMouseWorldPos()
                 SimCallback {
                     Func = "SelectSpawnLocation",
@@ -54,7 +54,6 @@ function UpdateMarkers(SyncMarkers)
     for strArmy, pos in SyncMarkers do
         if IsDestroyed(Markers[strArmy]) then
             Markers[strArmy] = createPositionMarker(GetArmy(strArmy), pos)
-            -- Markers[strArmy] = CreateMarker(strArmy, pos)
         else
             Markers[strArmy].pos = { pos[1], pos[2], pos[3] }
         end
@@ -147,26 +146,6 @@ function createPositionMarker(armyData, postable)
     end
 
     return posMarker
-end
-
-function CreateMarker(strArmy, pos)
-
-    local Marker = UIUtil.CreateText(GetFrame(0), ArmyName(strArmy), 16, "Arial Black", true)
-    LayoutHelpers.AtLeftTopIn(Marker, GetFrame(0))
-    Marker:SetColor('ffffffff')
-    Marker:DisableHitTest()
-    Marker:SetNeedsFrameUpdate(true)
-    Marker.pos = { pos[1], pos[2], pos[3] }
-    Marker.OnFrame = function(self, delta)
-
-        -- if markerpos then
-        local worldView = import('/lua/ui/game/worldview.lua').viewLeft
-        local pos = worldView:Project(self.pos)
-        LayoutHelpers.AtLeftTopIn(self, worldView, pos.x - self.Width() / 2, pos.y - self.Height() / 2)
-
-        -- end
-    end
-    return Marker
 end
 
 function Delete()
