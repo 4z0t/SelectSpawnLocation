@@ -1,3 +1,4 @@
+local _MonitoringThread = AbstractVictoryCondition.MonitoringThread ---@diagnostic disable-line: undefined-global
 AbstractVictoryCondition = Class(AbstractVictoryCondition) {
     --- Monitors the victory condition.
     ---@param self AbstractVictoryCondition
@@ -6,10 +7,6 @@ AbstractVictoryCondition = Class(AbstractVictoryCondition) {
             WaitTicks(5)
         end
 
-        while not IsGameOver() do
-            self:EvaluateVictoryCondition()
-            WaitTicks(4)
-        end
+        return _MonitoringThread(self)
     end,
-
 }
