@@ -3,7 +3,7 @@ AbstractVictoryCondition = Class(AbstractVictoryCondition) {
     --- Monitors the victory condition.
     ---@param self AbstractVictoryCondition
     MonitoringThread = function(self)
-        while ScenarioInfo.IsSpawnPhaze do
+        while ScenarioInfo.IsSpawnPhase do
             WaitTicks(5)
         end
 

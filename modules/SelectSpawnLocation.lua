@@ -58,7 +58,7 @@ local SpawnArea = Class()
 
 ---@param data { Position : Vector, Army : number }
 function SelectSpawnLocation(data)
-    if not ScenarioInfo.IsSpawnPhaze then
+    if not ScenarioInfo.IsSpawnPhase then
         return
     end
 
@@ -266,7 +266,7 @@ function SplitPlayersByTeams()
 end
 
 function PreparationPhaze(tblGroups)
-    ScenarioInfo.IsSpawnPhaze = true
+    ScenarioInfo.IsSpawnPhase = true
     LOG("render started")
     local armyToTeam, teams = SplitPlayersByTeams()
     ScenarioInfo.ArmyToTeam = armyToTeam
@@ -281,7 +281,7 @@ function PreparationPhaze(tblGroups)
     KillThread(mainThread)
 
     Sync.DeleteMarkers          = true
-    ScenarioInfo.IsSpawnPhaze   = false
+    ScenarioInfo.IsSpawnPhase   = false
     ScenarioInfo.SpawnAreas     = nil
     ScenarioInfo.ArmyToTeam     = nil
     ScenarioInfo.SpawnLocations = nil
