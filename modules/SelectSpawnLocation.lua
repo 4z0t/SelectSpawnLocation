@@ -265,7 +265,7 @@ function SplitPlayersByTeams()
     return armyToTeam, teams
 end
 
-function PreparationPhaze(tblGroups)
+function PreparationPhase(tblGroups)
     ScenarioInfo.IsSpawnPhase = true
     LOG("render started")
     local armyToTeam, teams = SplitPlayersByTeams()
@@ -357,6 +357,6 @@ function InitializeArmies()
 
 
     end
-    ForkThread(PreparationPhaze, tblGroups)
+    ForkThread(PreparationPhase, tblGroups)
     return tblGroups
 end
