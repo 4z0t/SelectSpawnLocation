@@ -166,7 +166,16 @@ local symmetryToAreaShape = {
 }
 
 function CreateSpawnAreas(teams)
-    if table.getsize(teams) ~= 2 then error("invalid team count") end
+    if table.getsize(teams) ~= 2 then
+        print("Too many teams to spawn, defaulting to whole map")
+        local x1, y1, x2, y2 = GetMapRect()
+        local area = SpawnArea("ff00ff00", x1, y1, x2, y2)
+        local areas = {}
+        for team in teams do
+            areas[team] = area
+        end
+        return areas
+    end
 
     local terrainSymmetry = ScenarioInfo.Options.SpawnAreaType
 
