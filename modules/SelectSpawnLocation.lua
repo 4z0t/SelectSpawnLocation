@@ -234,8 +234,8 @@ function ComputeSpawnAreas(t1, t2, c1, c2)
     local x1, y1, x2, y2 = GetMapRect()
 
     local msizeX, msizeY = x2 - x1, y2 - y1
-    local width1 = x1Max - x1Min
-    local height1 = y1Max - y1Min
+    local width1 = math.max(x1Max - x1Min, 10)
+    local height1 = math.max(y1Max - y1Min, 10)
 
     local xRatio1 = width1 / msizeX
     local yRatio1 = height1 / msizeY
@@ -246,8 +246,8 @@ function ComputeSpawnAreas(t1, t2, c1, c2)
     a1:ScaleArea(areaRatio1 / (xRatio1 * yRatio1))
     a1:ClampToSize(x1, y1, x2, y2)
 
-    local width2 = x2Max - x2Min
-    local height2 = y2Max - y2Min
+    local width2 = math.max(x2Max - x2Min, 10)
+    local height2 = math.max(y2Max - y2Min, 10)
 
     local xRatio2 = width2 / msizeX
     local yRatio2 = height2 / msizeY
