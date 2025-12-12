@@ -1,8 +1,22 @@
 local ScenarioUtils = import("/lua/sim/scenarioutilities.lua")
 local DrawLine = DrawLine
 
-
 local lineGroundOffset = 10
+
+local maxShapeRatio = 1 / 3
+local minShapeRatio = 4 / 25
+
+---@class ArmySetupEntry
+---@field ArmyIndex integer
+---@field ArmyName string
+---@field Civilian boolean
+---@field Faction Faction
+---@field Human boolean,
+---@field PlayerName string
+---@field StartSpot integer
+---@field Team integer
+
+
 
 ---@class SpawnArea
 ---@field color Color
@@ -14,16 +28,63 @@ local SpawnArea = Class()
 {
     ---@param self SpawnArea
     ---@param color Color
-    ---@param x number
-    ---@param y number
-    ---@param z number
-    ---@param w number
-    __init = function(self, color, x, y, z, w)
+    ---@param x1 number
+    ---@param y1 number
+    ---@param x2 number
+    ---@param y2 number
+    __init = function(self, color, x1, y1, x2, y2)
         self.color = color
-        self[1] = x
-        self[2] = y
-        self[3] = z
-        self[4] = w
+        self[1] = math.min(x1, x2)
+        self[2] = math.min(y1, y2)
+        self[3] = math.max(x1, x2)
+        self[4] = math.max(y1, y2)
+    end,
+
+    ---@param self SpawnArea
+    ---@return number
+    GetArea = function(self)
+        return self:Width() * self:Height()
+    end,
+
+    ---@param self SpawnArea
+    ---@param xMin number
+    ---@param yMin number
+    ---@param xMax number
+    ---@param yMax number
+    ClampToSize = function(self, xMin, yMin, xMax, yMax)
+        self[1] = math.clamp(self[1], xMin, xMax)
+        self[2] = math.clamp(self[2], yMin, yMax)
+        self[3] = math.clamp(self[3], xMin, xMax)
+        self[4] = math.clamp(self[4], yMin, yMax)
+    end,
+
+    ---@param self SpawnArea
+    ---@return number
+    Width = function(self)
+        return math.abs(self[3] - self[1])
+    end,
+
+    ---@param self SpawnArea
+    ---@return number
+    Height = function(self)
+        return math.abs(self[4] - self[2])
+    end,
+
+    ---@param self SpawnArea
+    ---@param ratio number
+    ScaleArea = function(self, ratio)
+        local width = self:Width()
+        local height = self:Height()
+
+        local center = self:GetCenter()
+
+        width = width * math.sqrt(ratio)
+        height = height * math.sqrt(ratio)
+
+        self[1] = center[1] - width / 2
+        self[2] = center[3] - height / 2
+        self[3] = center[1] + width / 2
+        self[4] = center[3] + height / 2
     end,
 
     ---@param self SpawnArea
@@ -119,7 +180,92 @@ local function GetMapRect()
     return 0, 0, GetMapSize()
 end
 
+function ComputeSpawnAreas(t1, t2, c1, c2)
+    local armySetup = ScenarioInfo.ArmySetup
+    local armies = ScenarioInfo.Configurations.standard.teams[1].armies -- all available armies
+
+    ---@type table<string, Vector>
+    local armyPositions = {}
+    for _, armyName in armies do
+        ---@type Marker
+        local marker = import("/lua/sim/ScenarioUtilities.lua").GetMarker(armyName)
+        if marker then
+            armyPositions[armyName] = marker.position
+        end
+    end
+
+    local v1 = Vector(0, 0, 0)
+    local v2 = Vector(0, 0, 0)
+
+    local x1Max, y1Max, x1Min, y1Min = 0, 0, 100000, 100000
+    local x2Max, y2Max, x2Min, y2Min = 0, 0, 100000, 100000
+
+    local n1, n2 = 0, 0
+    -- We assume that team 1 is odd positions and team 2 is even positions
+
+    for i, armyName in armies do
+        local pos = armyPositions[armyName]
+        if pos then
+            if math.mod(i, 2) == 1 then
+                x1Max = math.max(x1Max, pos[1])
+                y1Max = math.max(y1Max, pos[3])
+                x1Min = math.min(x1Min, pos[1])
+                y1Min = math.min(y1Min, pos[3])
+
+                v1 = VAdd(v1, pos)
+
+                n1 = n1 + 1
+            else
+                v2 = VAdd(v2, pos)
+                x2Max = math.max(x2Max, pos[1])
+                y2Max = math.max(y2Max, pos[3])
+                x2Min = math.min(x2Min, pos[1])
+                y2Min = math.min(y2Min, pos[3])
+
+                n2 = n2 + 1
+            end
+        end
+    end
+
+    v1 = Vector(v1[1] / n1, v1[2] / n1, v1[3] / n1)
+    v2 = Vector(v2[1] / n2, v2[2] / n2, v2[3] / n2)
+
+    local x1, y1, x2, y2 = GetMapRect()
+
+    local msizeX, msizeY = x2 - x1, y2 - y1
+    local width1 = x1Max - x1Min
+    local height1 = y1Max - y1Min
+
+    local xRatio1 = width1 / msizeX
+    local yRatio1 = height1 / msizeY
+
+    local areaRatio1 = math.clamp(xRatio1 * yRatio1, minShapeRatio, maxShapeRatio)
+
+    local a1 = SpawnArea(c1, v1[1] - width1 / 2, v1[3] - height1 / 2, v1[1] + width1 / 2, v1[3] + height1 / 2)
+    a1:ScaleArea(areaRatio1 / (xRatio1 * yRatio1))
+    a1:ClampToSize(x1, y1, x2, y2)
+
+    local width2 = x2Max - x2Min
+    local height2 = y2Max - y2Min
+
+    local xRatio2 = width2 / msizeX
+    local yRatio2 = height2 / msizeY
+
+    local areaRatio2 = math.clamp(xRatio2 * yRatio2, minShapeRatio, maxShapeRatio)
+
+    local a2 = SpawnArea(c2, v2[1] - width2 / 2, v2[3] - height2 / 2, v2[1] + width2 / 2, v2[3] + height2 / 2)
+    a2:ScaleArea(areaRatio2 / (xRatio2 * yRatio2))
+    a2:ClampToSize(x1, y1, x2, y2)
+
+
+    return {
+        [t1] = a1,
+        [t2] = a2,
+    }
+end
+
 local symmetryToAreaShape = {
+    ["auto"] = ComputeSpawnAreas,
     ["rvsl"] = function(t1, t2, c1, c2)
         local x1, y1, x2, y2 = GetMapRect()
         local msizeX, msizeY = x2 - x1, y2 - y1
@@ -186,7 +332,7 @@ function CreateSpawnAreas(teams)
         return f(t1, t2, c1, c2)
     end
     -- Default to top vs bottom
-    return symmetryToAreaShape["tvsb"](t1, t2, c1, c2)
+    return symmetryToAreaShape["auto"](t1, t2, c1, c2)
 end
 
 local time = 300
@@ -263,6 +409,7 @@ end
 function SplitPlayersByTeams()
     local armyToTeam = {}
     local teams = {}
+    ---@param army ArmySetupEntry
     for _, army in ScenarioInfo.ArmySetup do
         if army.Civilian then
             continue

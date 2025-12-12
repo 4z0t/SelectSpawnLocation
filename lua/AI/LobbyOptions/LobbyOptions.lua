@@ -10,11 +10,11 @@ do
             help = "Spawn areas type",
             key = "SpawnAreaType",
             values = {
-                -- {
-                --     text = "Based on map symmetry",
-                --     help = "Works only with Map generator",
-                --     key = 'none',
-                -- },
+                {
+                    text = "Auto areas",
+                    help = "Computes based on spawn positions odd vs even",
+                    key = 'auto',
+                },
                 {
                     text = "Top vs Bottom",
                     help = "2 areas on top and bottom of the map",
