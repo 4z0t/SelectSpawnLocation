@@ -216,11 +216,12 @@ function ComputeSpawnAreas(t1, t2, c1, c2)
 
                 n1 = n1 + 1
             else
-                v2 = VAdd(v2, pos)
                 x2Max = math.max(x2Max, pos[1])
                 y2Max = math.max(y2Max, pos[3])
                 x2Min = math.min(x2Min, pos[1])
                 y2Min = math.min(y2Min, pos[3])
+
+                v2 = VAdd(v2, pos)
 
                 n2 = n2 + 1
             end
