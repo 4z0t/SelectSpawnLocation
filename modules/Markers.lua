@@ -5,6 +5,8 @@ local Group = import('/lua/maui/group.lua').Group
 
 local LayoutFor = import('/lua/maui/layouthelpers.lua').LayoutFor
 
+local preparationTimeSeconds = tonumber(SessionGetScenarioInfo().Options.PreparationTime) or 30
+
 local Markers = {}
 local Timer = nil
 local Credits = nil
@@ -67,7 +69,7 @@ function CreateTimer()
     Timer:SetNeedsFrameUpdate(true)
     LayoutHelpers.AtCenterIn(Timer, GetFrame(0), -400)
     Timer.OnFrame = function(self, delta)
-        self:SetText('Choose your destiny: ' .. math.ceil((30 - GameTick() / 10)))
+        self:SetText('Choose your destiny: ' .. math.ceil((preparationTimeSeconds - GameTick() / 10)))
     end
 
 end

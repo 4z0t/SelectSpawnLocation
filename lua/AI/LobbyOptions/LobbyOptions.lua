@@ -2,11 +2,42 @@
 AIOpts = {}
 do
     local TableInsert = table.insert
+    TableInsert(AIOpts,
+        {
+            default = 2,
+            label = "=====Select Spawn Location=====",
+            help = "Select Spawn Location options section",
+            key = "=====Select Spawn Location=====",
+            values = {
+                {
+                    text = "<LOC _Off>Off",
+                    help = "Disabled",
+                    key = 'false',
+                },
+                {
+                    text = "<LOC _On>On",
+                    help = "Enabled",
+                    key = 'true',
+                },
+            },
+        })
+    TableInsert(AIOpts,
+        {
+            default = 2,
+            label = "Preparation time",
+            help = "Time players have to choose spawn location",
+            key = "PreparationTime",
+            value_text = "%s",
+            value_help = "%s seconds",
+            values = {
+                '15', '30', '45', '60',
+            },
+        })
 
     TableInsert(AIOpts,
         {
             default = 1,
-            label = "=====Select Spawn Location=====",
+            label = "Spawn area type",
             help = "Spawn areas type",
             key = "SpawnAreaType",
             values = {

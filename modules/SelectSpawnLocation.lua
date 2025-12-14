@@ -11,7 +11,7 @@ local minShapeRatio = 4 / 25
 ---@field ArmyName string
 ---@field Civilian boolean
 ---@field Faction Faction
----@field Human boolean,
+---@field Human boolean
 ---@field PlayerName string
 ---@field StartSpot integer
 ---@field Team integer
@@ -232,36 +232,36 @@ function ComputeSpawnAreas(t1, t2, c1, c2)
     v2 = Vector(v2[1] / n2, v2[2] / n2, v2[3] / n2)
 
     local x1, y1, x2, y2 = GetMapRect()
-
     local msizeX, msizeY = x2 - x1, y2 - y1
-    local width1 = math.max(x1Max - x1Min, 10)
-    local height1 = math.max(y1Max - y1Min, 10)
 
-    local xRatio1 = width1 / msizeX
-    local yRatio1 = height1 / msizeY
+    ---@param c Color
+    ---@param xMax number
+    ---@param yMax number
+    ---@param xMin number
+    ---@param yMin number
+    ---@param center Vector
+    ---@return SpawnArea
+    local function ComputeShape(c, xMax, yMax, xMin, yMin, center)
+        local width = math.max(xMax - xMin, 10)
+        local height = math.max(yMax - yMin, 10)
 
-    local areaRatio1 = math.clamp(xRatio1 * yRatio1, minShapeRatio, maxShapeRatio)
+        local xRatio = width / msizeX
+        local yRatio = height / msizeY
 
-    local a1 = SpawnArea(c1, v1[1] - width1 / 2, v1[3] - height1 / 2, v1[1] + width1 / 2, v1[3] + height1 / 2)
-    a1:ScaleArea(areaRatio1 / (xRatio1 * yRatio1))
-    a1:ClampToSize(x1, y1, x2, y2)
+        local areaRatio = math.clamp(xRatio * yRatio, minShapeRatio, maxShapeRatio)
 
-    local width2 = math.max(x2Max - x2Min, 10)
-    local height2 = math.max(y2Max - y2Min, 10)
+        local a = SpawnArea(c,
+            center[1] - width / 2, center[3] - height / 2,
+            center[1] + width / 2, center[3] + height / 2)
 
-    local xRatio2 = width2 / msizeX
-    local yRatio2 = height2 / msizeY
-
-    local areaRatio2 = math.clamp(xRatio2 * yRatio2, minShapeRatio, maxShapeRatio)
-
-    local a2 = SpawnArea(c2, v2[1] - width2 / 2, v2[3] - height2 / 2, v2[1] + width2 / 2, v2[3] + height2 / 2)
-    a2:ScaleArea(areaRatio2 / (xRatio2 * yRatio2))
-    a2:ClampToSize(x1, y1, x2, y2)
-
+        a:ScaleArea(areaRatio / (xRatio * yRatio))
+        a:ClampToSize(x1, y1, x2, y2)
+        return a
+    end
 
     return {
-        [t1] = a1,
-        [t2] = a2,
+        [t1] = ComputeShape(c1, x1Max, y1Max, x1Min, y1Min, v1),
+        [t2] = ComputeShape(c2, x2Max, y2Max, x2Min, y2Min, v2),
     }
 end
 
@@ -332,12 +332,9 @@ function CreateSpawnAreas(teams)
     if f then
         return f(t1, t2, c1, c2)
     end
-    -- Default to top vs bottom
+    -- Default to auto
     return symmetryToAreaShape["auto"](t1, t2, c1, c2)
 end
-
-local time = 300
-
 
 function RenderLines()
     for teamId, area in ScenarioInfo.SpawnAreas do
@@ -365,7 +362,7 @@ function RenderMarkers()
 
 end
 
-function MainThread()
+function RenderThread()
     LOG("MAIN THREAD")
     while true do
         RenderLines()
@@ -430,8 +427,8 @@ function PreparationPhase(tblGroups)
     local areas = CreateSpawnAreas(teams)
     ScenarioInfo.SpawnAreas = areas
     ScenarioInfo.SpawnLocations = DefaultSpawnLocations(areas, armyToTeam)
-    local mainThread = ForkThread(MainThread)
-    WaitTicks(time)
+    local mainThread = ForkThread(RenderThread)
+    WaitTicks((tonumber(ScenarioInfo.Options.PreparationTime) or 30) * 10)
 
     SpawnACUs(tblGroups)
     LOG("COMS SPAWNED")
