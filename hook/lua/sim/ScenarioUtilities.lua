@@ -1,9 +1,11 @@
 do
     local _InitializeArmies = InitializeArmies
     function InitializeArmies()
-        if not ScenarioInfo.Options.AutoTeams
+        ScenarioInfo.IsSSL = not ScenarioInfo.Options.AutoTeams
             or not ScenarioInfo.Options.SpawnAreaType
-            or ScenarioInfo.Options.SpawnAreaType == "none" then
+            or ScenarioInfo.Options.SpawnAreaType == "none"
+
+        if not ScenarioInfo.IsSSL then
             return _InitializeArmies()
         end
         return import("/mods/SSL/modules/SelectSpawnLocation.lua").InitializeArmies()
